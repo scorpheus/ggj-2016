@@ -1,0 +1,115 @@
+import gs
+import gs.plus
+import gs.plus.render as render
+import gs.plus.input as input
+import gs.plus.clock as clock
+
+import os
+import sys
+import math
+import random
+
+if getattr(sys, 'frozen', False):
+	app_path = os.path.dirname(sys.executable)
+else:
+	app_path = os.path.dirname(os.path.realpath(__file__))
+
+gs.LoadPlugins(gs.get_default_plugins_path())
+
+# gs.plus.create_workers()
+render.init(640, 576, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))#, 1, gs.Window.Fullscreen)
+
+# get the big resolution
+size = render.get_renderer().GetCurrentOutputWindow().GetSize()
+
+big_resolution = gs.Vector2(160, 144)
+
+size_pixel = gs.Vector2(size.x / big_resolution.x, size.y / big_resolution.y)
+half_size_pixel = size_pixel * 0.5
+
+gameboy_palette = [gs.Color(16/255, 19/255, 12/255),
+				   gs.Color(50/255, 60/255, 37/255),
+				   gs.Color(83/255, 101/255, 61/255),
+				   gs.Color(117/255, 141/255, 86/255),
+				   gs.Color(151/255, 174/255, 122/255)
+				   ]
+
+def drange(start, stop, step):
+	r = start
+	while r < stop:
+		yield r
+		r += step
+
+def draw_pixel(x, y, color=gs.Color.Blue):
+	center = gs.Vector2(int(x), int(y)) * size_pixel
+
+	render.quad2d(center.x-half_size_pixel.x, center.y-half_size_pixel.y, center.x-half_size_pixel.x, center.y+half_size_pixel.y, center.x+half_size_pixel.x, center.y+half_size_pixel.y, center.x+half_size_pixel.x, center.y-half_size_pixel.y, color, color, color, color)
+
+
+def draw_circle(center_x, center_y, radius, color=gs.Color.Blue):
+	for x in drange(0.0, 6.2831, 6.2831/(size_pixel.x*radius)):
+		draw_pixel(center_x + math.cos(x) * radius, center_y + math.sin(x) * radius, color)
+
+
+def drawLine(x0, y0, x1, y1, color=gs.Color.Blue):
+	dx = abs(x1-x0)
+	dy = abs(y1-y0)
+	sx = sy = 0
+
+	if x0 < x1:
+		sx = 1
+	else:
+		sx = -1
+	if y0 < y1:
+		sy = 1
+	else:
+		sy = -1
+
+	err = dx - dy
+
+	while True:
+		draw_pixel(x0, y0, color)
+
+		if x0 == x1 and y0 == y1:
+			break
+
+		e2 = 2 * err
+		if e2 > -dy:
+			err = err - dy
+			x0 += sx
+
+		if x0 == x1 and y0 == y1:
+			draw_pixel(x0, y0, color)
+			break
+
+		if e2 < dx:
+			err = err + dx
+			y0 += sy
+
+
+def get_random_color():
+	return gameboy_palette[random.randint(0, len(gameboy_palette)-1)]
+
+
+
+count = 10
+while not input.key_press(gs.InputDevice.KeyEscape):
+	dt_sec = clock.update()
+	random.seed(1)
+	render.clear(get_random_color())
+
+	draw_circle(big_resolution.x*.5, big_resolution.y*.5, count, get_random_color())
+	draw_circle(big_resolution.x*.5, big_resolution.y*.5, count+10, get_random_color())
+
+	random.seed()
+	drawLine(random.randint(0, big_resolution.x-1), random.randint(0,big_resolution.y-1), random.randint(0, big_resolution.x-1), random.randint(0, big_resolution.y-1), get_random_color())
+
+
+
+	count += 20
+	if count > big_resolution.x*.5:
+		count = 10
+
+	render.flip()
+
+render.uninit()
