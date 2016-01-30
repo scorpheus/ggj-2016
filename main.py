@@ -191,33 +191,37 @@ reducing = 0.0
 reset = False
 
 
-def draw_cursor():
-	size_pentacle = 5
+def draw_pentacle(pos, size_pentacle, speed):
+
 	cursor_point = [gs.Vector3(0, 1, 0) * size_pentacle,
 	                gs.Vector3(0.58, -0.809, 0) * size_pentacle,
 	                gs.Vector3(-0.95, 0.309, 0) * size_pentacle,
 	                gs.Vector3(0.95, 0.309, 0) * size_pentacle,
 	                gs.Vector3(-0.58, -0.809, 0) * size_pentacle]
 
+	timeline = (time_pass*speed) % 5
+	if 0 < timeline < 1:
+		draw_line(lerp(timeline, pos.x+cursor_point[0].x, pos.x+cursor_point[1].x), lerp(timeline, pos.y+cursor_point[0].y, pos.y+cursor_point[1].y), pos.x+cursor_point[1].x, pos.y+cursor_point[1].y, get_random_color())
+		draw_line(pos.x+cursor_point[1].x, pos.y+cursor_point[1].y, lerp(timeline, pos.x+cursor_point[1].x, pos.x+cursor_point[2].x), lerp(timeline, pos.y+cursor_point[1].y, pos.y+cursor_point[2].y), get_random_color())
+	if 1 < timeline < 2:
+		draw_line(lerp(timeline-1, pos.x+cursor_point[1].x, pos.x+cursor_point[2].x), lerp(timeline-1, pos.y+cursor_point[1].y, pos.y+cursor_point[2].y), pos.x+cursor_point[2].x, pos.y+cursor_point[2].y, get_random_color())
+		draw_line(pos.x+cursor_point[2].x, pos.y+cursor_point[2].y, lerp(timeline-1, pos.x+cursor_point[2].x, pos.x+cursor_point[3].x), lerp(timeline-1, pos.y+cursor_point[2].y, pos.y+cursor_point[3].y), get_random_color())
+	if 2 < timeline < 3:
+		draw_line(lerp(timeline-2, pos.x+cursor_point[2].x, pos.x+cursor_point[3].x), lerp(timeline-2, pos.y+cursor_point[2].y, pos.y+cursor_point[3].y), pos.x+cursor_point[3].x, pos.y+cursor_point[3].y, get_random_color())
+		draw_line(pos.x+cursor_point[3].x, pos.y+cursor_point[3].y, lerp(timeline-2, pos.x+cursor_point[3].x, pos.x+cursor_point[4].x), lerp(timeline-2, pos.y+cursor_point[3].y, pos.y+cursor_point[4].y), get_random_color())
+	if 3 < timeline < 4:
+		draw_line(lerp(timeline-3, pos.x+cursor_point[3].x, pos.x+cursor_point[4].x), lerp(timeline-3, pos.y+cursor_point[3].y, pos.y+cursor_point[4].y), pos.x+cursor_point[4].x, pos.y+cursor_point[4].y, get_random_color())
+		draw_line(pos.x+cursor_point[4].x, pos.y+cursor_point[4].y, lerp(timeline-3, pos.x+cursor_point[4].x, pos.x+cursor_point[0].x), lerp(timeline-3, pos.y+cursor_point[4].y, pos.y+cursor_point[0].y), get_random_color())
+	if 4 < timeline < 5:
+		draw_line(lerp(timeline-4, pos.x+cursor_point[4].x, pos.x+cursor_point[0].x), lerp(timeline-4, pos.y+cursor_point[4].y, pos.y+cursor_point[0].y), pos.x+cursor_point[0].x, pos.y+cursor_point[0].y, get_random_color())
+		draw_line(pos.x+cursor_point[0].x, pos.y+cursor_point[0].y, lerp(timeline-4, pos.x+cursor_point[0].x, pos.x+cursor_point[1].x), lerp(timeline-4, pos.y+cursor_point[0].y, pos.y+cursor_point[1].y), get_random_color())
+
+
+def draw_cursor():
 	mouse_pos = input.get_mouse_pos()
 	mouse_pos = gs.Vector3(mouse_pos[0] / size_pixel.x, mouse_pos[1] / size_pixel.y, 0)
 
-	timeline = (time_pass*15) % 5
-	if 0 < timeline < 1:
-		draw_line(lerp(timeline, mouse_pos.x+cursor_point[0].x, mouse_pos.x+cursor_point[1].x), lerp(timeline, mouse_pos.y+cursor_point[0].y, mouse_pos.y+cursor_point[1].y), mouse_pos.x+cursor_point[1].x, mouse_pos.y+cursor_point[1].y, get_random_color())
-		draw_line(mouse_pos.x+cursor_point[1].x, mouse_pos.y+cursor_point[1].y, lerp(timeline, mouse_pos.x+cursor_point[1].x, mouse_pos.x+cursor_point[2].x), lerp(timeline, mouse_pos.y+cursor_point[1].y, mouse_pos.y+cursor_point[2].y), get_random_color())
-	if 1 < timeline < 2:
-		draw_line(lerp(timeline-1, mouse_pos.x+cursor_point[1].x, mouse_pos.x+cursor_point[2].x), lerp(timeline-1, mouse_pos.y+cursor_point[1].y, mouse_pos.y+cursor_point[2].y), mouse_pos.x+cursor_point[2].x, mouse_pos.y+cursor_point[2].y, get_random_color())
-		draw_line(mouse_pos.x+cursor_point[2].x, mouse_pos.y+cursor_point[2].y, lerp(timeline-1, mouse_pos.x+cursor_point[2].x, mouse_pos.x+cursor_point[3].x), lerp(timeline-1, mouse_pos.y+cursor_point[2].y, mouse_pos.y+cursor_point[3].y), get_random_color())
-	if 2 < timeline < 3:
-		draw_line(lerp(timeline-2, mouse_pos.x+cursor_point[2].x, mouse_pos.x+cursor_point[3].x), lerp(timeline-2, mouse_pos.y+cursor_point[2].y, mouse_pos.y+cursor_point[3].y), mouse_pos.x+cursor_point[3].x, mouse_pos.y+cursor_point[3].y, get_random_color())
-		draw_line(mouse_pos.x+cursor_point[3].x, mouse_pos.y+cursor_point[3].y, lerp(timeline-2, mouse_pos.x+cursor_point[3].x, mouse_pos.x+cursor_point[4].x), lerp(timeline-2, mouse_pos.y+cursor_point[3].y, mouse_pos.y+cursor_point[4].y), get_random_color())
-	if 3 < timeline < 4:
-		draw_line(lerp(timeline-3, mouse_pos.x+cursor_point[3].x, mouse_pos.x+cursor_point[4].x), lerp(timeline-3, mouse_pos.y+cursor_point[3].y, mouse_pos.y+cursor_point[4].y), mouse_pos.x+cursor_point[4].x, mouse_pos.y+cursor_point[4].y, get_random_color())
-		draw_line(mouse_pos.x+cursor_point[4].x, mouse_pos.y+cursor_point[4].y, lerp(timeline-3, mouse_pos.x+cursor_point[4].x, mouse_pos.x+cursor_point[0].x), lerp(timeline-3, mouse_pos.y+cursor_point[4].y, mouse_pos.y+cursor_point[0].y), get_random_color())
-	if 4 < timeline < 5:
-		draw_line(lerp(timeline-4, mouse_pos.x+cursor_point[4].x, mouse_pos.x+cursor_point[0].x), lerp(timeline-4, mouse_pos.y+cursor_point[4].y, mouse_pos.y+cursor_point[0].y), mouse_pos.x+cursor_point[0].x, mouse_pos.y+cursor_point[0].y, get_random_color())
-		draw_line(mouse_pos.x+cursor_point[0].x, mouse_pos.y+cursor_point[0].y, lerp(timeline-4, mouse_pos.x+cursor_point[0].x, mouse_pos.x+cursor_point[1].x), lerp(timeline-4, mouse_pos.y+cursor_point[0].y, mouse_pos.y+cursor_point[1].y), get_random_color())
+	draw_pentacle(mouse_pos, 5, 15)
 
 reduce_speed = 15
 increase_speed = 15
@@ -245,6 +249,7 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 		render.text2d(31.25*size_pixel.x, size.y/4, "You LOSE yourself \nto the devil !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(size.x/6, size.y/4*3, "Click to Restart", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		check_clicked()
+		draw_pentacle(gs.Vector3(big_resolution.x*0.5, big_resolution.y*0.5, 0), 50, 40)
 
 	if win:
 		render.text2d(size.x/20, size.y/4*3.5, "The demon's door is \nnow closed\nCongratulation !", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
@@ -321,7 +326,7 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 					second_point = random.randint(0, nb_point-1)
 				array_id_line.append([first_point, second_point])
 
-	if not win:
+	if not win and not lose:
 		for point, size_point, is_full in zip(array_point, array_size_point, array_full_point):
 			draw_circle(point.x, point.y, size_point, get_random_color(), is_full)
 
@@ -345,7 +350,7 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 		next_symbol = True
 
 	if start:
-		render.text2d(7.8125*size_pixel.x, size.y/7*6, "Fill the void \nto close the demon's eye !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(3.0*size_pixel.x, size.y/7*6, "Finish the ritual to close\nthe demon's portal !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(31.25*size_pixel.x, size.y/7*1.5, "Easy", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(31.25*size_pixel.x, size.y/7*1, "Hard", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(31.25*size_pixel.x, 10, "Exit", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")

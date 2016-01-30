@@ -167,11 +167,13 @@ def lerp(x, a, b):
 default_font = gs.RasterFont("@core/fonts/default.ttf", 12)
 radius_circle_eye = 10
 counter_seed = 0
+time_pass = 0.0
 
 inverse = False
 
 while not input.key_press(gs.InputDevice.KeyEscape):
 	dt_sec = clock.update()
+	time_pass += dt_sec
 
 	random.seed(counter_seed)
 
@@ -179,7 +181,7 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 	# render.clear(gs.Color.Black)
 
 	draw_circle_explosion(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye, 10, get_random_color())
-	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp((2 * radius_circle_eye / big_resolution.x), radius_circle_eye, radius_circle_eye + 10), get_random_color())
+	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp(abs(math.cos(time_pass*3)), radius_circle_eye, radius_circle_eye + 10), get_random_color())
 	draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
 
 	if inverse:
