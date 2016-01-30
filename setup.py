@@ -31,8 +31,8 @@ options = {
 	}
 }
 
-setup(  name = "Demon'sEye",
+setup(  name = "Daemon Portal",
 		version = "1.0",
-		description = "Demon'sEye",
+		description = "Daemon Portal",
 		options = options,
 		executables = [Executable("main.py")])

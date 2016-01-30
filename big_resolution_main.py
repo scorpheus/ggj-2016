@@ -25,6 +25,8 @@ gs.MountFileDriver(gs.StdFileDriver())
 size = render.get_renderer().GetCurrentOutputWindow().GetSize()
 
 big_resolution = gs.Vector2(160, 144)
+big_resolution = gs.Vector2(1920, 1200)
+
 
 size_pixel = gs.Vector2(size.x / big_resolution.x, size.y / big_resolution.y)
 half_size_pixel = size_pixel * 0.5
@@ -261,9 +263,9 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 	render.clear(gs.Color(16/255, 19/255, 12/255))
 	# render.clear(gs.Color.Black)
 
-	draw_circle_explosion(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye, 10, get_random_color())
-	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp(abs(math.cos(time_pass*3)), radius_circle_eye, radius_circle_eye + 10), get_random_color())
-	draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
+	# draw_circle_explosion(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye, 10, get_random_color())
+	# draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp(abs(math.cos(time_pass*3)), radius_circle_eye, radius_circle_eye + 10), get_random_color())
+	# draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
 
 	if reset:
 		radius_circle_eye = radius_circle_eye + (15-radius_circle_eye)*dt_sec
@@ -294,8 +296,8 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 		next_symbol = False
 
 		# create symbol
-		nb_point = random.randint(2, 8)
-		size_symbol = random.randint(10, 32)
+		nb_point = random.randint(2, 20)
+		size_symbol = random.randint(10, 500)
 		nb_line = random.randint(1, nb_point-1)
 
 		array_point = []
@@ -308,7 +310,7 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 			while not check and counter_check < 10:
 				counter_check += 1
 				check = True
-				size_point = random.randint(2, 3)
+				size_point = random.randint(2, 50)
 				pos_point = gs.Vector3(random.randint(center_symbol.x - size_symbol, center_symbol.x + size_symbol), random.randint(center_symbol.y - size_symbol, center_symbol.y + size_symbol), 0)
 				for y in range(len(array_point)):
 					if gs.Vector3.Dist(pos_point, array_point[y]) < size_point + array_size_point[y]:
