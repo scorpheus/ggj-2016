@@ -17,8 +17,8 @@ else:
 gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
-# render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
-render.init(1920, 1200, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
+render.init(1024, 921, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
+# render.init(1920, 1200, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
 gs.MountFileDriver(gs.StdFileDriver())
 
 # get the big resolution
@@ -216,6 +216,11 @@ def draw_pentacle(pos, size_pentacle, speed):
 		draw_line(lerp(timeline-4, pos.x+cursor_point[4].x, pos.x+cursor_point[0].x), lerp(timeline-4, pos.y+cursor_point[4].y, pos.y+cursor_point[0].y), pos.x+cursor_point[0].x, pos.y+cursor_point[0].y, get_random_color())
 		draw_line(pos.x+cursor_point[0].x, pos.y+cursor_point[0].y, lerp(timeline-4, pos.x+cursor_point[0].x, pos.x+cursor_point[1].x), lerp(timeline-4, pos.y+cursor_point[0].y, pos.y+cursor_point[1].y), get_random_color())
 
+	# draw_line(pos.x+cursor_point[0].x, pos.y+cursor_point[0].y, pos.x+cursor_point[1].x, pos.y+cursor_point[1].y, get_random_color())
+	# draw_line(pos.x+cursor_point[1].x, pos.y+cursor_point[1].y, pos.x+cursor_point[2].x, pos.y+cursor_point[2].y, get_random_color())
+	# draw_line(pos.x+cursor_point[2].x, pos.y+cursor_point[2].y, pos.x+cursor_point[3].x, pos.y+cursor_point[3].y, get_random_color())
+	# draw_line(pos.x+cursor_point[3].x, pos.y+cursor_point[3].y, pos.x+cursor_point[4].x, pos.y+cursor_point[4].y, get_random_color())
+	# draw_line(pos.x+cursor_point[4].x, pos.y+cursor_point[4].y, pos.x+cursor_point[0].x, pos.y+cursor_point[0].y, get_random_color())
 
 def draw_cursor():
 	mouse_pos = input.get_mouse_pos()
