@@ -17,7 +17,8 @@ else:
 gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
-render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))#, 1, gs.Window.Fullscreen)
+# render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))#, 1, gs.Window.Fullscreen)
+render.init(1920, 1080, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
 
 # get the big resolution
 size = render.get_renderer().GetCurrentOutputWindow().GetSize()
@@ -166,6 +167,8 @@ default_font = gs.RasterFont("@core/fonts/default.ttf", 12)
 radius_circle_eye = 10
 counter_seed = 0
 
+inverse = False
+
 while not input.key_press(gs.InputDevice.KeyEscape):
 	dt_sec = clock.update()
 
@@ -178,16 +181,22 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp((2 * radius_circle_eye / big_resolution.x), radius_circle_eye, radius_circle_eye + 10), get_random_color())
 	draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
 
-	radius_circle_eye += dt_sec * 40
+	if inverse:
+		radius_circle_eye -= dt_sec * 30
+	else:
+		radius_circle_eye += dt_sec * 30
+	if radius_circle_eye < 5:
+		inverse = False
 	if radius_circle_eye > big_resolution.x*.5:
-		radius_circle_eye = 10
+		# radius_circle_eye = 10
+		inverse = True
 
-	if input.key_press(gs.InputDevice.KeyA) or math.floor(radius_circle_eye)%10 == 0:
+	if input.key_press(gs.InputDevice.KeyA) or math.floor(radius_circle_eye)%20 == 0:
 		counter_seed += 1
 
 	# create symbol
 	nb_point = random.randint(2, 8)
-	size_symbol = random.randint(10, 32)
+	size_symbol = random.randint(20, 40)
 	nb_line = random.randint(1, nb_point-1)
 
 	# center_symbol = gs.Vector3(random.randint(size_symbol, big_resolution.x-1-size_symbol), random.randint(size_symbol, big_resolution.y-1-size_symbol), 0)
@@ -200,7 +209,7 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 		while not check and counter_check < 10:
 			counter_check += 1
 			check = True
-			size_point = random.randint(2, 3)
+			size_point = random.randint(1, 3)
 			pos_point = gs.Vector3(random.randint(center_symbol.x - size_symbol, center_symbol.x + size_symbol), random.randint(center_symbol.y - size_symbol, center_symbol.y + size_symbol), 0)
 			for y in range(len(array_point)):
 				if gs.Vector3.Dist(pos_point, array_point[y]) < size_point + array_size_point[y]:
