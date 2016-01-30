@@ -18,6 +18,7 @@ gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
 render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))#, 1, gs.Window.Fullscreen)
+gs.MountFileDriver(gs.StdFileDriver())
 
 # get the big resolution
 size = render.get_renderer().GetCurrentOutputWindow().GetSize()
@@ -159,6 +160,12 @@ def get_random_color():
 	return gameboy_palette[random.randint(0, len(gameboy_palette)-1)]
 
 
+def is_clicking_in_point(pos, radius):
+	if input.mouse_button_down():
+		if gs.Vector2.Dist(gs.Vector2(input.get_mouse_pos()[0], input.get_mouse_pos()[1]), gs.Vector2(pos.x * size_pixel.x, pos.y * size_pixel.y)) < radius * size_pixel.x:
+			return True
+	return False
+
 def lerp(x, a, b):
 	return a + (b - a)*x
 
@@ -166,8 +173,46 @@ default_font = gs.RasterFont("@core/fonts/default.ttf", 12)
 radius_circle_eye = 10
 counter_seed = 0
 
+lose = False
+win = False
+array_point = []
+array_size_point = []
+array_full_point = []
+array_id_line = []
+
+next_symbol = True
+
+reducing = 0.0
+
+counter_start = 4.0
+
 while not input.key_press(gs.InputDevice.KeyEscape):
 	dt_sec = clock.update()
+
+	if counter_start > 0.0:
+		counter_start -= dt_sec
+		render.text2d(7.8125*size_pixel.x, size.y/7*6, "Fill the void \nto close the demon's eye !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+
+	if lose:
+		render.text2d(31.25*size_pixel.x, size.y/4, "You LOSE yourself \nto the devil !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(size.x/6, size.y/4*3, "Restart Press R", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.flip()
+
+		if input.key_press(gs.InputDevice.KeyR):
+			radius_circle_eye = 10
+			counter_seed = 0
+			lose = False
+			win = False
+			array_point = []
+			array_size_point = []
+			array_full_point = []
+			array_id_line = []
+			next_symbol = True
+			reducing = 0.0
+			counter_start = 4.0
+		continue
+	if win:
+		render.text2d(size.x/4, size.y/4*3, "You win !", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 
 	random.seed(counter_seed)
 
@@ -178,58 +223,85 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp((2 * radius_circle_eye / big_resolution.x), radius_circle_eye, radius_circle_eye + 10), get_random_color())
 	draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
 
-	radius_circle_eye += dt_sec * 40
-	if radius_circle_eye > big_resolution.x*.5:
-		radius_circle_eye = 10
+	if radius_circle_eye < 5.0:
+		win = True
+		radius_circle_eye -= dt_sec * 10
+		if radius_circle_eye < 0:
+			radius_circle_eye = 0
 
-	if input.key_press(gs.InputDevice.KeyA) or math.floor(radius_circle_eye)%10 == 0:
+	elif reducing > 0.0:
+		reducing -= dt_sec * 10
+		radius_circle_eye -= dt_sec * 10
+	else:
+		radius_circle_eye += dt_sec * 5
+		if radius_circle_eye > big_resolution.x*.5:
+			lose = True
+
+	# change seed
+	if input.key_press(gs.InputDevice.KeyA) or next_symbol:# or math.floor(radius_circle_eye)%10 == 0:
 		counter_seed += 1
+		next_symbol = False
 
-	# create symbol
-	nb_point = random.randint(2, 8)
-	size_symbol = random.randint(10, 32)
-	nb_line = random.randint(1, nb_point-1)
+		# create symbol
+		nb_point = random.randint(2, 8)
+		size_symbol = random.randint(10, 32)
+		nb_line = random.randint(1, nb_point-1)
 
-	# center_symbol = gs.Vector3(random.randint(size_symbol, big_resolution.x-1-size_symbol), random.randint(size_symbol, big_resolution.y-1-size_symbol), 0)
-	center_symbol = gs.Vector3(big_resolution.x*.5, big_resolution.y*.5, 0)
-	array_point = []
-	array_size_point = []
-	for i in range(nb_point):
-		check = False
-		counter_check = 0
-		while not check and counter_check < 10:
-			counter_check += 1
-			check = True
-			size_point = random.randint(2, 3)
-			pos_point = gs.Vector3(random.randint(center_symbol.x - size_symbol, center_symbol.x + size_symbol), random.randint(center_symbol.y - size_symbol, center_symbol.y + size_symbol), 0)
-			for y in range(len(array_point)):
-				if gs.Vector3.Dist(pos_point, array_point[y]) < size_point + array_size_point[y]:
-					check = False
+		array_point = []
+		array_size_point = []
+		array_full_point = []
+		# center_symbol = gs.Vector3(random.randint(size_symbol, big_resolution.x-1-size_symbol), random.randint(size_symbol, big_resolution.y-1-size_symbol), 0)
+		center_symbol = gs.Vector3(big_resolution.x*.5, big_resolution.y*.5, 0)
+		for i in range(nb_point):
+			check = False
+			counter_check = 0
+			while not check and counter_check < 10:
+				counter_check += 1
+				check = True
+				size_point = random.randint(2, 3)
+				pos_point = gs.Vector3(random.randint(center_symbol.x - size_symbol, center_symbol.x + size_symbol), random.randint(center_symbol.y - size_symbol, center_symbol.y + size_symbol), 0)
+				for y in range(len(array_point)):
+					if gs.Vector3.Dist(pos_point, array_point[y]) < size_point + array_size_point[y]:
+						check = False
 
-		array_size_point.append(size_point)
-		array_point.append(pos_point)
+			array_size_point.append(size_point)
+			array_point.append(pos_point)
+			array_full_point.append(random.randint(0, 1))
 
-	for point, pos in zip(array_point, array_size_point):
-		draw_circle(point.x, point.y, pos, get_random_color(), random.randint(0, 1))
-
-	if nb_line != 0:
-		array_id_line = []
-		for i in range(nb_line):
-			second_point = first_point = random.randint(0, nb_point-1)
-			while second_point == first_point:
-				second_point = random.randint(0, nb_point-1)
-			array_id_line.append([first_point, second_point])
-
-		for id_line in array_id_line:
-			pos_a = array_point[id_line[0]] + ((array_point[id_line[1]] - array_point[id_line[0]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[0]]+1)
-			pos_b = array_point[id_line[1]] + ((array_point[id_line[0]] - array_point[id_line[1]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[1]]+1)
-			if gs.Vector3.Dist(pos_a, pos_b) > 1:
-				draw_line(pos_a.x, pos_a.y, pos_b.x, pos_b.y, get_random_color())
+		if nb_line != 0:
+			array_id_line = []
+			for i in range(nb_line):
+				second_point = first_point = random.randint(0, nb_point-1)
+				while second_point == first_point:
+					second_point = random.randint(0, nb_point-1)
+				array_id_line.append([first_point, second_point])
 
 
+	for point, size_point, is_full in zip(array_point, array_size_point, array_full_point):
+		draw_circle(point.x, point.y, size_point, get_random_color(), is_full)
+
+	for id_line in array_id_line:
+		pos_a = array_point[id_line[0]] + ((array_point[id_line[1]] - array_point[id_line[0]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[0]]+1)
+		pos_b = array_point[id_line[1]] + ((array_point[id_line[0]] - array_point[id_line[1]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[1]]+1)
+		if gs.Vector3.Dist(pos_a, pos_b) > 1:
+			draw_line(pos_a.x, pos_a.y, pos_b.x, pos_b.y, get_random_color())
+
+	for i in range(len(array_point)):
+		if not array_full_point[i] and is_clicking_in_point(array_point[i], array_size_point[i]):
+			array_full_point[i] = True
+
+	# check all full
+	all_checked = True
+	for is_full in array_full_point:
+		if not is_full:
+			all_checked = False
+	if all_checked:
+		reducing = 5.0
+		next_symbol = True
 
 	# gs.DrawRenderSystemStats(render.get_render_system(), default_font, 10, 370)
 	render.flip()
 	# render.get_render_system().BeginFrame()
 	# render.get_render_system().EndFrame()
+
 render.uninit()
