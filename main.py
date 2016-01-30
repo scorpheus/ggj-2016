@@ -18,7 +18,7 @@ gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
 render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
-# render.init(1920, 1080, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
+# render.init(1920, 1200, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
 gs.MountFileDriver(gs.StdFileDriver())
 
 # get the big resolution
@@ -58,7 +58,6 @@ def draw_circle_explosion(center_x, center_y, radius, inner_radius, color=gs.Col
 	# 	angle = math.asin(x/radius)
 	# 	pos_x = int(math.cos(angle) * radius)
 	# 	draw_line(center_x - pos_x, center_y + math.sin(angle) * radius, center_x + pos_x, center_y + math.sin(angle) * radius, color)
-
 
 
 def draw_circle(center_x, center_y, radius, color=gs.Color.Blue, full=False):
@@ -167,40 +166,68 @@ def is_clicking_in_point(pos, radius):
 			return True
 	return False
 
+
 def lerp(x, a, b):
 	return a + (b - a)*x
 
 default_font = gs.RasterFont("@core/fonts/default.ttf", 12)
-radius_circle_eye = 10
+radius_circle_eye = 15
 counter_seed = 0
 
+start = True
 lose = False
 win = False
 array_point = []
 array_size_point = []
 array_full_point = []
 array_id_line = []
+time_pass = 0.0
 
 next_symbol = True
 
 reducing = 0.0
 
-counter_start = 4.0
+reset = False
+
+
+def draw_cursor():
+	size_pentacle = 5
+	cursor_point = [gs.Vector3(0, 1, 0) * size_pentacle,
+	                gs.Vector3(0.58, -0.809, 0) * size_pentacle,
+	                gs.Vector3(-0.95, 0.309, 0) * size_pentacle,
+	                gs.Vector3(0.95, 0.309, 0) * size_pentacle,
+	                gs.Vector3(-0.58, -0.809, 0) * size_pentacle]
+
+	mouse_pos = input.get_mouse_pos()
+	mouse_pos = gs.Vector3(mouse_pos[0] / size_pixel.x, mouse_pos[1] / size_pixel.y, 0)
+
+	timeline = (time_pass*12) % 5
+	if 0 < timeline < 1:
+		draw_line(lerp(timeline, mouse_pos.x+cursor_point[0].x, mouse_pos.x+cursor_point[1].x), lerp(timeline, mouse_pos.y+cursor_point[0].y, mouse_pos.y+cursor_point[1].y), mouse_pos.x+cursor_point[1].x, mouse_pos.y+cursor_point[1].y, get_random_color())
+		draw_line(mouse_pos.x+cursor_point[1].x, mouse_pos.y+cursor_point[1].y, lerp(timeline, mouse_pos.x+cursor_point[1].x, mouse_pos.x+cursor_point[2].x), lerp(timeline, mouse_pos.y+cursor_point[1].y, mouse_pos.y+cursor_point[2].y), get_random_color())
+	if 1 < timeline < 2:
+		draw_line(lerp(timeline-1, mouse_pos.x+cursor_point[1].x, mouse_pos.x+cursor_point[2].x), lerp(timeline-1, mouse_pos.y+cursor_point[1].y, mouse_pos.y+cursor_point[2].y), mouse_pos.x+cursor_point[2].x, mouse_pos.y+cursor_point[2].y, get_random_color())
+		draw_line(mouse_pos.x+cursor_point[2].x, mouse_pos.y+cursor_point[2].y, lerp(timeline-1, mouse_pos.x+cursor_point[2].x, mouse_pos.x+cursor_point[3].x), lerp(timeline-1, mouse_pos.y+cursor_point[2].y, mouse_pos.y+cursor_point[3].y), get_random_color())
+	if 2 < timeline < 3:
+		draw_line(lerp(timeline-2, mouse_pos.x+cursor_point[2].x, mouse_pos.x+cursor_point[3].x), lerp(timeline-2, mouse_pos.y+cursor_point[2].y, mouse_pos.y+cursor_point[3].y), mouse_pos.x+cursor_point[3].x, mouse_pos.y+cursor_point[3].y, get_random_color())
+		draw_line(mouse_pos.x+cursor_point[3].x, mouse_pos.y+cursor_point[3].y, lerp(timeline-2, mouse_pos.x+cursor_point[3].x, mouse_pos.x+cursor_point[4].x), lerp(timeline-2, mouse_pos.y+cursor_point[3].y, mouse_pos.y+cursor_point[4].y), get_random_color())
+	if 3 < timeline < 4:
+		draw_line(lerp(timeline-3, mouse_pos.x+cursor_point[3].x, mouse_pos.x+cursor_point[4].x), lerp(timeline-3, mouse_pos.y+cursor_point[3].y, mouse_pos.y+cursor_point[4].y), mouse_pos.x+cursor_point[4].x, mouse_pos.y+cursor_point[4].y, get_random_color())
+		draw_line(mouse_pos.x+cursor_point[4].x, mouse_pos.y+cursor_point[4].y, lerp(timeline-3, mouse_pos.x+cursor_point[4].x, mouse_pos.x+cursor_point[0].x), lerp(timeline-3, mouse_pos.y+cursor_point[4].y, mouse_pos.y+cursor_point[0].y), get_random_color())
+	if 4 < timeline < 5:
+		draw_line(lerp(timeline-4, mouse_pos.x+cursor_point[4].x, mouse_pos.x+cursor_point[0].x), lerp(timeline-4, mouse_pos.y+cursor_point[4].y, mouse_pos.y+cursor_point[0].y), mouse_pos.x+cursor_point[0].x, mouse_pos.y+cursor_point[0].y, get_random_color())
+		draw_line(mouse_pos.x+cursor_point[0].x, mouse_pos.y+cursor_point[0].y, lerp(timeline-4, mouse_pos.x+cursor_point[0].x, mouse_pos.x+cursor_point[1].x), lerp(timeline-4, mouse_pos.y+cursor_point[0].y, mouse_pos.y+cursor_point[1].y), get_random_color())
+
+reduce_speed = 15
+increase_speed = 15
 
 while not input.key_press(gs.InputDevice.KeyEscape):
 	dt_sec = clock.update()
+	time_pass += dt_sec
 
-	if counter_start > 0.0:
-		counter_start -= dt_sec
-		render.text2d(7.8125*size_pixel.x, size.y/7*6, "Fill the void \nto close the demon's eye !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
-
-	if lose:
-		render.text2d(31.25*size_pixel.x, size.y/4, "You LOSE yourself \nto the devil !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
-		render.text2d(size.x/6, size.y/4*3, "Restart Press R", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
-		render.flip()
-
-		if input.key_press(gs.InputDevice.KeyR):
-			radius_circle_eye = 10
+	def check_clicked():
+		global radius_circle_eye, counter_seed, lose, win, array_point, array_size_point, array_full_point, array_id_line, next_symbol, reducing, start, reset
+		if not input.mouse_button_was_down() and input.mouse_button_down():
 			counter_seed = 0
 			lose = False
 			win = False
@@ -210,10 +237,18 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 			array_id_line = []
 			next_symbol = True
 			reducing = 0.0
-			counter_start = 4.0
-		continue
+			start = True
+			reset = True
+
+	if lose:
+		render.text2d(31.25*size_pixel.x, size.y/4, "You LOSE yourself \nto the devil !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(size.x/6, size.y/4*3, "Click to Restart", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		check_clicked()
+
 	if win:
-		render.text2d(size.x/4, size.y/4*3, "You win !", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(size.x/20, size.y/4*3.5, "The demon's door is \nnow closed\nCongratulation !", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(size.x/6, size.y/4, "Click to Restart", 7.8125*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		check_clicked()
 
 	random.seed(counter_seed)
 
@@ -221,25 +256,34 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 	# render.clear(gs.Color.Black)
 
 	draw_circle_explosion(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye, 10, get_random_color())
-	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp((2 * radius_circle_eye / big_resolution.x), radius_circle_eye, radius_circle_eye + 10), get_random_color())
+	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp(abs(math.cos(time_pass*3)), radius_circle_eye, radius_circle_eye + 10), get_random_color())
 	draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
 
-	if radius_circle_eye < 5.0:
-		win = True
-		radius_circle_eye -= dt_sec * 10
-		if radius_circle_eye < 0:
-			radius_circle_eye = 0
+	if reset:
+		radius_circle_eye = radius_circle_eye + (15-radius_circle_eye)*dt_sec
+		if abs(radius_circle_eye - 15) < 0.1:
+			reset = False
 
-	elif reducing > 0.0:
-		reducing -= dt_sec * 10
-		radius_circle_eye -= dt_sec * 10
-	else:
-		radius_circle_eye += dt_sec * 5
-		if radius_circle_eye > big_resolution.x*.5:
-			lose = True
+	if not start and not lose:
+		if radius_circle_eye < 5.0:
+			win = True
+			radius_circle_eye -= dt_sec * 10
+			if radius_circle_eye < 0:
+				radius_circle_eye = 0
+
+		elif reducing > 0.0:
+			reducing -= dt_sec * 10
+			radius_circle_eye -= dt_sec * reduce_speed
+		else:
+			advance_value = math.pow(abs(math.cos(radius_circle_eye * 0.5)), 0.9)
+			if advance_value < 0.2:
+				advance_value = 0.2
+			radius_circle_eye += advance_value*dt_sec * increase_speed
+			if radius_circle_eye > big_resolution.x*.5:
+				lose = True
 
 	# change seed
-	if input.key_press(gs.InputDevice.KeyA) or next_symbol:# or math.floor(radius_circle_eye)%10 == 0:
+	if input.key_press(gs.InputDevice.KeyA) or next_symbol:
 		counter_seed += 1
 		next_symbol = False
 
@@ -251,7 +295,6 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 		array_point = []
 		array_size_point = []
 		array_full_point = []
-		# center_symbol = gs.Vector3(random.randint(size_symbol, big_resolution.x-1-size_symbol), random.randint(size_symbol, big_resolution.y-1-size_symbol), 0)
 		center_symbol = gs.Vector3(big_resolution.x*.5, big_resolution.y*.5, 0)
 		for i in range(nb_point):
 			check = False
@@ -277,19 +320,19 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 					second_point = random.randint(0, nb_point-1)
 				array_id_line.append([first_point, second_point])
 
+	if not win:
+		for point, size_point, is_full in zip(array_point, array_size_point, array_full_point):
+			draw_circle(point.x, point.y, size_point, get_random_color(), is_full)
 
-	for point, size_point, is_full in zip(array_point, array_size_point, array_full_point):
-		draw_circle(point.x, point.y, size_point, get_random_color(), is_full)
+		for id_line in array_id_line:
+			pos_a = array_point[id_line[0]] + ((array_point[id_line[1]] - array_point[id_line[0]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[0]]+1)
+			pos_b = array_point[id_line[1]] + ((array_point[id_line[0]] - array_point[id_line[1]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[1]]+1)
+			if gs.Vector3.Dist(pos_a, pos_b) > 1:
+				draw_line(pos_a.x, pos_a.y, pos_b.x, pos_b.y, get_random_color())
 
-	for id_line in array_id_line:
-		pos_a = array_point[id_line[0]] + ((array_point[id_line[1]] - array_point[id_line[0]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[0]]+1)
-		pos_b = array_point[id_line[1]] + ((array_point[id_line[0]] - array_point[id_line[1]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[1]]+1)
-		if gs.Vector3.Dist(pos_a, pos_b) > 1:
-			draw_line(pos_a.x, pos_a.y, pos_b.x, pos_b.y, get_random_color())
-
-	for i in range(len(array_point)):
-		if not array_full_point[i] and is_clicking_in_point(array_point[i], array_size_point[i]):
-			array_full_point[i] = True
+		for i in range(len(array_point)):
+			if not array_full_point[i] and is_clicking_in_point(array_point[i], array_size_point[i]):
+				array_full_point[i] = True
 
 	# check all full
 	all_checked = True
@@ -299,6 +342,27 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 	if all_checked:
 		reducing = 5.0
 		next_symbol = True
+
+	if start:
+		render.text2d(7.8125*size_pixel.x, size.y/7*6, "Fill the void \nto close the demon's eye !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(31.25*size_pixel.x, size.y/7*1.5, "Easy", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(31.25*size_pixel.x, size.y/7*1, "Hard", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		if not input.mouse_button_was_down() and input.mouse_button_down():
+			easy_rect = gs.fRect(31.25*size_pixel.x, size.y/7*1.5, 31.25*size_pixel.x + 31.25*size_pixel.x, size.y/7*1.5 + 8.5*size_pixel.x)
+			hard_rect = gs.fRect(31.25*size_pixel.x, size.y/7*1, 31.25*size_pixel.x + 31.25*size_pixel.x, size.y/7*1 + 8.5*size_pixel.x)
+			if easy_rect.Inside(input.get_mouse_pos()[0], input.get_mouse_pos()[1]):
+				start = False
+				reset = False
+				reduce_speed = 15
+				increase_speed = 15
+			if hard_rect.Inside(input.get_mouse_pos()[0], input.get_mouse_pos()[1]):
+				start = False
+				reset = False
+				reduce_speed = 10
+				increase_speed = 25
+
+
+	draw_cursor()
 
 	# gs.DrawRenderSystemStats(render.get_render_system(), default_font, 10, 370)
 	render.flip()

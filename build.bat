@@ -1,2 +1,1 @@
-c:\Python34_64\Python.exe setup.py build
-pause
+c:\Python34\Python.exe setup.py build

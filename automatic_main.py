@@ -17,8 +17,8 @@ else:
 gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
-# render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))#, 1, gs.Window.Fullscreen)
-render.init(1920, 1080, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
+render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
+# render.init(1920, 1080, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
 
 # get the big resolution
 size = render.get_renderer().GetCurrentOutputWindow().GetSize()
@@ -184,7 +184,10 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 	if inverse:
 		radius_circle_eye -= dt_sec * 30
 	else:
-		radius_circle_eye += dt_sec * 30
+		advance_value = math.pow(abs(math.cos(radius_circle_eye * 0.5)), 0.9)
+		if advance_value < 0.2:
+			advance_value = 0.2
+		radius_circle_eye += advance_value*dt_sec * 30
 	if radius_circle_eye < 5:
 		inverse = False
 	if radius_circle_eye > big_resolution.x*.5:
