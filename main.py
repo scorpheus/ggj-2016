@@ -17,8 +17,8 @@ else:
 gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
-render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
-# render.init(1920, 1200, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
+# render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
+render.init(1920, 1200, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
 gs.MountFileDriver(gs.StdFileDriver())
 
 # get the big resolution
@@ -183,6 +183,7 @@ array_full_point = []
 array_id_line = []
 time_pass = 0.0
 
+exit = False
 next_symbol = True
 
 reducing = 0.0
@@ -201,7 +202,7 @@ def draw_cursor():
 	mouse_pos = input.get_mouse_pos()
 	mouse_pos = gs.Vector3(mouse_pos[0] / size_pixel.x, mouse_pos[1] / size_pixel.y, 0)
 
-	timeline = (time_pass*12) % 5
+	timeline = (time_pass*15) % 5
 	if 0 < timeline < 1:
 		draw_line(lerp(timeline, mouse_pos.x+cursor_point[0].x, mouse_pos.x+cursor_point[1].x), lerp(timeline, mouse_pos.y+cursor_point[0].y, mouse_pos.y+cursor_point[1].y), mouse_pos.x+cursor_point[1].x, mouse_pos.y+cursor_point[1].y, get_random_color())
 		draw_line(mouse_pos.x+cursor_point[1].x, mouse_pos.y+cursor_point[1].y, lerp(timeline, mouse_pos.x+cursor_point[1].x, mouse_pos.x+cursor_point[2].x), lerp(timeline, mouse_pos.y+cursor_point[1].y, mouse_pos.y+cursor_point[2].y), get_random_color())
@@ -221,7 +222,7 @@ def draw_cursor():
 reduce_speed = 15
 increase_speed = 15
 
-while not input.key_press(gs.InputDevice.KeyEscape):
+while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 	dt_sec = clock.update()
 	time_pass += dt_sec
 
@@ -282,7 +283,7 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 			if radius_circle_eye > big_resolution.x*.5:
 				lose = True
 
-	# change seed
+	# change symbol
 	if input.key_press(gs.InputDevice.KeyA) or next_symbol:
 		counter_seed += 1
 		next_symbol = False
@@ -347,9 +348,11 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 		render.text2d(7.8125*size_pixel.x, size.y/7*6, "Fill the void \nto close the demon's eye !", 6.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(31.25*size_pixel.x, size.y/7*1.5, "Easy", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(31.25*size_pixel.x, size.y/7*1, "Hard", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
+		render.text2d(31.25*size_pixel.x, 10, "Exit", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		if not input.mouse_button_was_down() and input.mouse_button_down():
 			easy_rect = gs.fRect(31.25*size_pixel.x, size.y/7*1.5, 31.25*size_pixel.x + 31.25*size_pixel.x, size.y/7*1.5 + 8.5*size_pixel.x)
 			hard_rect = gs.fRect(31.25*size_pixel.x, size.y/7*1, 31.25*size_pixel.x + 31.25*size_pixel.x, size.y/7*1 + 8.5*size_pixel.x)
+			exit_rect = gs.fRect(31.25*size_pixel.x, 10, 31.25*size_pixel.x + 31.25*size_pixel.x, 10 + 8.5*size_pixel.x)
 			if easy_rect.Inside(input.get_mouse_pos()[0], input.get_mouse_pos()[1]):
 				start = False
 				reset = False
@@ -360,6 +363,8 @@ while not input.key_press(gs.InputDevice.KeyEscape):
 				reset = False
 				reduce_speed = 10
 				increase_speed = 25
+			if exit_rect.Inside(input.get_mouse_pos()[0], input.get_mouse_pos()[1]):
+				exit = True
 
 
 	draw_cursor()

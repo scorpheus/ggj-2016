@@ -17,13 +17,14 @@ else:
 gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
-render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
-# render.init(1920, 1080, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
+# render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
+render.init(1920, 1080, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
 
 # get the big resolution
 size = render.get_renderer().GetCurrentOutputWindow().GetSize()
 
 big_resolution = gs.Vector2(160, 144)
+# big_resolution = gs.Vector2(60, 44)
 
 size_pixel = gs.Vector2(size.x / big_resolution.x, size.y / big_resolution.y)
 half_size_pixel = size_pixel * 0.5
