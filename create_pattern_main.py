@@ -17,8 +17,8 @@ else:
 gs.LoadPlugins(gs.get_default_plugins_path())
 
 # gs.plus.create_workers()
-render.init(1024, 768, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
-# render.init(1920, 1080, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))), 1, gs.Window.Fullscreen)
+render.init(1024, 1024, os.path.normcase(os.path.realpath(os.path.join(app_path, "pkg.core"))))
+gs.MountFileDriver(gs.StdFileDriver())
 
 # get the big resolution
 size = render.get_renderer().GetCurrentOutputWindow().GetSize()
@@ -165,86 +165,87 @@ def lerp(x, a, b):
 	return a + (b - a)*x
 
 default_font = gs.RasterFont("@core/fonts/default.ttf", 12)
-radius_circle_eye = 10
+radius_circle_eye = (random.random()*(big_resolution.x*.5 - 15)) + 15
 counter_seed = 0
 time_pass = 0.0
 
 inverse = False
 
-while not input.key_press(gs.InputDevice.KeyEscape):
-	dt_sec = clock.update()
-	time_pass += dt_sec
+dt_sec = random.random()*1000.0
+time_pass = dt_sec
 
-	random.seed(counter_seed)
+# random.seed(counter_seed)
 
-	render.clear(gs.Color(16/255, 19/255, 12/255))
-	# render.clear(gs.Color.Black)
+render.clear(gs.Color(16/255, 19/255, 12/255))
+# render.clear(gs.Color.Black)
 
-	draw_circle_explosion(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye, 10, get_random_color())
-	draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp(abs(math.cos(time_pass*3)), radius_circle_eye, radius_circle_eye + 10), get_random_color())
-	draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
+draw_circle_explosion(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye, 10, get_random_color())
+draw_circle(big_resolution.x * .5, big_resolution.y * .5, lerp(abs(math.cos(time_pass*3)), radius_circle_eye, radius_circle_eye + 10), get_random_color())
+draw_circle(big_resolution.x * .5, big_resolution.y * .5, radius_circle_eye + 10, get_random_color())
 
-	if inverse:
-		radius_circle_eye -= dt_sec * 30
-	else:
-		advance_value = math.pow(abs(math.cos(radius_circle_eye * 0.5)), 0.9)
-		if advance_value < 0.2:
-			advance_value = 0.2
-		radius_circle_eye += advance_value*dt_sec * 30
-	if radius_circle_eye < 5:
-		inverse = False
-	if radius_circle_eye > big_resolution.x*.5:
-		# radius_circle_eye = 10
-		inverse = True
+if inverse:
+	radius_circle_eye -= dt_sec * 30
+else:
+	advance_value = math.pow(abs(math.cos(radius_circle_eye * 0.5)), 0.9)
+	if advance_value < 0.2:
+		advance_value = 0.2
+	radius_circle_eye += advance_value*dt_sec * 30
+if radius_circle_eye < 5:
+	inverse = False
+if radius_circle_eye > big_resolution.x*.5:
+	# radius_circle_eye = 10
+	inverse = True
+#
+# if input.key_press(gs.InputDevice.KeyA) or math.floor(radius_circle_eye)%20 == 0:
+# 	counter_seed += 1
 
-	if input.key_press(gs.InputDevice.KeyA) or math.floor(radius_circle_eye)%20 == 0:
-		counter_seed += 1
+# create symbol
+nb_point = random.randint(2, 8)
+size_symbol = random.randint(20, 40)
+nb_line = random.randint(1, nb_point-1)
 
-	# create symbol
-	nb_point = random.randint(2, 8)
-	size_symbol = random.randint(20, 40)
-	nb_line = random.randint(1, nb_point-1)
+# center_symbol = gs.Vector3(random.randint(size_symbol, big_resolution.x-1-size_symbol), random.randint(size_symbol, big_resolution.y-1-size_symbol), 0)
+center_symbol = gs.Vector3(big_resolution.x*.5, big_resolution.y*.5, 0)
+array_point = []
+array_size_point = []
+for i in range(nb_point):
+	check = False
+	counter_check = 0
+	while not check and counter_check < 10:
+		counter_check += 1
+		check = True
+		size_point = random.randint(1, 3)
+		pos_point = gs.Vector3(random.randint(center_symbol.x - size_symbol, center_symbol.x + size_symbol), random.randint(center_symbol.y - size_symbol, center_symbol.y + size_symbol), 0)
+		for y in range(len(array_point)):
+			if gs.Vector3.Dist(pos_point, array_point[y]) < size_point + array_size_point[y]:
+				check = False
 
-	# center_symbol = gs.Vector3(random.randint(size_symbol, big_resolution.x-1-size_symbol), random.randint(size_symbol, big_resolution.y-1-size_symbol), 0)
-	center_symbol = gs.Vector3(big_resolution.x*.5, big_resolution.y*.5, 0)
-	array_point = []
-	array_size_point = []
-	for i in range(nb_point):
-		check = False
-		counter_check = 0
-		while not check and counter_check < 10:
-			counter_check += 1
-			check = True
-			size_point = random.randint(1, 3)
-			pos_point = gs.Vector3(random.randint(center_symbol.x - size_symbol, center_symbol.x + size_symbol), random.randint(center_symbol.y - size_symbol, center_symbol.y + size_symbol), 0)
-			for y in range(len(array_point)):
-				if gs.Vector3.Dist(pos_point, array_point[y]) < size_point + array_size_point[y]:
-					check = False
+	array_size_point.append(size_point)
+	array_point.append(pos_point)
 
-		array_size_point.append(size_point)
-		array_point.append(pos_point)
+for point, pos in zip(array_point, array_size_point):
+	draw_circle(point.x, point.y, pos, get_random_color(), random.randint(0, 1))
 
-	for point, pos in zip(array_point, array_size_point):
-		draw_circle(point.x, point.y, pos, get_random_color(), random.randint(0, 1))
+if nb_line != 0:
+	array_id_line = []
+	for i in range(nb_line):
+		second_point = first_point = random.randint(0, nb_point-1)
+		while second_point == first_point:
+			second_point = random.randint(0, nb_point-1)
+		array_id_line.append([first_point, second_point])
 
-	if nb_line != 0:
-		array_id_line = []
-		for i in range(nb_line):
-			second_point = first_point = random.randint(0, nb_point-1)
-			while second_point == first_point:
-				second_point = random.randint(0, nb_point-1)
-			array_id_line.append([first_point, second_point])
-
-		for id_line in array_id_line:
-			pos_a = array_point[id_line[0]] + ((array_point[id_line[1]] - array_point[id_line[0]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[0]]+1)
-			pos_b = array_point[id_line[1]] + ((array_point[id_line[0]] - array_point[id_line[1]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[1]]+1)
-			if gs.Vector3.Dist(pos_a, pos_b) > 1:
-				draw_line(pos_a.x, pos_a.y, pos_b.x, pos_b.y, get_random_color())
-
+	for id_line in array_id_line:
+		pos_a = array_point[id_line[0]] + ((array_point[id_line[1]] - array_point[id_line[0]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[0]]+1)
+		pos_b = array_point[id_line[1]] + ((array_point[id_line[0]] - array_point[id_line[1]]) / gs.Vector3.Dist(array_point[id_line[0]], array_point[id_line[1]])) * (array_size_point[id_line[1]]+1)
+		if gs.Vector3.Dist(pos_a, pos_b) > 1:
+			draw_line(pos_a.x, pos_a.y, pos_b.x, pos_b.y, get_random_color())
 
 
-	# gs.DrawRenderSystemStats(render.get_render_system(), default_font, 10, 370)
-	render.flip()
-	# render.get_render_system().BeginFrame()
-	# render.get_render_system().EndFrame()
+render.flip()
+
+
+picture = gs.Picture()
+render.get_renderer().CaptureFramebuffer(picture)
+gs.SavePicture(picture, "yo_{0}.png".format(random.randint(0, 99999)), 'STB', 'format:png')
+
 render.uninit()
