@@ -1,0 +1,1 @@
+c:\Python34\Python.exe setup_create_pattern.py build

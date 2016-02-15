@@ -1,13 +1,23 @@
 import gs
 import gs.plus
 import gs.plus.render as render
-import gs.plus.input as input
-import gs.plus.clock as clock
 
 import os
 import sys
 import math
 import random
+import argparse
+import sys
+
+# parse arguments
+parser = argparse.ArgumentParser(description='create the devil pattern.')
+parser.add_argument('-o', '--out', help='out path to save')
+
+try:
+	args = parser.parse_args()
+except:
+	print("Can't parse: %s" % (','.join(map(str, sys.exc_info()))))
+	sys.exit(1)
 
 if getattr(sys, 'frozen', False):
 	app_path = os.path.dirname(sys.executable)
@@ -246,6 +256,6 @@ render.flip()
 
 picture = gs.Picture()
 render.get_renderer().CaptureFramebuffer(picture)
-gs.SavePicture(picture, "yo_{0}.png".format(random.randint(0, 99999)), 'STB', 'format:png')
+gs.SavePicture(picture, args.out, 'STB', 'format:png')
 
 render.uninit()
