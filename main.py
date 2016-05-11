@@ -237,7 +237,7 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 
 	def check_clicked():
 		global radius_circle_eye, counter_seed, lose, win, array_point, array_size_point, array_full_point, array_id_line, next_symbol, reducing, start, reset
-		if not input.mouse_button_was_down() and input.mouse_button_down():
+		if not input.get_mouse().WasButtonDown(gs.InputDevice.Button0) and input.mouse_button_down():
 			counter_seed = 0
 			lose = False
 			win = False
@@ -360,7 +360,7 @@ while not input.key_press(gs.InputDevice.KeyEscape) and not exit:
 		render.text2d(31.25*size_pixel.x, size.y/7*1.5, "Easy", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(31.25*size_pixel.x, size.y/7*1, "Hard", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
 		render.text2d(31.25*size_pixel.x, 10, "Exit", 8.5*size_pixel.x, gameboy_palette[2], font_path="Early GameBoy.ttf")
-		if not input.mouse_button_was_down() and input.mouse_button_down():
+		if not input.get_mouse().WasButtonDown(gs.InputDevice.Button0) and input.mouse_button_down():
 			easy_rect = gs.fRect(31.25*size_pixel.x, size.y/7*1.5, 31.25*size_pixel.x + 31.25*size_pixel.x, size.y/7*1.5 + 8.5*size_pixel.x)
 			hard_rect = gs.fRect(31.25*size_pixel.x, size.y/7*1, 31.25*size_pixel.x + 31.25*size_pixel.x, size.y/7*1 + 8.5*size_pixel.x)
 			exit_rect = gs.fRect(31.25*size_pixel.x, 10, 31.25*size_pixel.x + 31.25*size_pixel.x, 10 + 8.5*size_pixel.x)
